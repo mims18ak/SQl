@@ -1,0 +1,107 @@
+#!/bin/bash
+# Julia Buniak
+dbname="ibuniak"
+read -p "Enter you first and last name > " first last
+echo "Hello, $first $last,"
+echo "Welcome to Smart Car Rentals!"
+echo "Pick the option what you want to do next:"
+
+displayOptions() {
+echo "Check currently available cars            ==========> [A]" #M
+echo "Book a car                                ==========> [B]" #J
+echo "Check currently rented cars               ==========> [C]" #J
+echo "Check out a car                           ==========> [D]" #J
+echo "Car return                                ==========> [E]" #M
+echo "Add employee information                  ==========> [F]" #J
+echo "List all employees                        ==========> [G]" #J
+echo "Find an employee                          ==========> [H]" #M
+echo "Add customer information                  ==========> [I]" #M
+echo "List all customers                        ==========> [J]" #M
+echo "Find a customer                           ==========> [K]" #M
+echo "Extra charge                              ==========> [L]" #J
+echo "To quit                                   ==========> [Q]" echo
+}
+
+pickA()
+{
+# Matt enter date_out and return_date compare these dates
+read -p "Enter date out" date_out
+read -p "Enter return date" return_date
+
+
+psql $dbname << EOF
+
+SELECT car_id as available, date_out, return_date as last_day_prior_rental, '$date_out' AS pick_up_date, '$return_date' AS return_date
+FROM booking_tbl
+WHERE car_id NOT IN
+                (select distinct car_id
+                 from booking_tbl
+                 where date_out between '$date_out'::date and '$return_date'::date
+                        or return_date between '$date_out'::date and '$return_date'::date
+
+                 group by car_id)
+GROUP BY car_id, booking_id
+Order By car_id;
+
+EOF
+}
+
+pickE()
+{
+#Car Return
+read -p "Enter your Employee ID:  " return_employee_id
+read -p "Enter the Car ID you are returning:  " return_car_id
+read -p "Enter the Customer ID:  " return_customer_id
+read -p "Enter the new milage:  " milage_in                     #Trigger Calculate miles total or if elif statement
+read -p "How many gallons of gas did we add to fill:  " gallons_gas_filled
+read -p "How much did the gas cost per gallon:  " gas_price_per_gallon
+read -p "Do you have any notes for this rental?  " rental_notes
+echo "employeeID: " $return_employee_id  "returncarID: " $return_car_id  "customerID: " $return_customer_id  "Your milage in: " $milage_in
+echo "Gallons Filled by us:"  $gallons_gas_filled  "Price per gallon: " $gas_price_per_gallon  "Rental notes: " $rental_notes
+
+psql $dbname <<EOF
+
+INSERT INTO return_tbl(car_id, customer_id, employee_id, new_mileage, gas_refill, price_per_gallon, notes)
+VALUES ($return_car_id, $return_customer_id, $return_employee_id, $milage_in, $gallons_gas_filled, $gas_price_per_gallon, '$rental_notes');
+
+EOF
+}
+
+pickH()
+{
+
+#Find an employee
+
+read -p "Find all information on an employee.  Enter the employee's ID:  " find_emp_id
+
+psql $dbname << EOF
+
+select * from employee_tbl where employee_id = $find_emp_id
+
+;
+EOF
+}
+
+read -p "Enter appropriate option >  " reply
+while [[ $reply  != "Q" && $reply  != "q" ]]
+do
+case $reply in
+      A|a) pickA;;
+      B|b) pickB;;
+      R|r) pickR;;
+      O|o) pickO;;
+      N|n) pickN;;
+      E|e) pickE;;
+      F|f) pickF;;
+      L|l) pickL;;
+      C|c) pickC;;
+      H|h) pickH;;
+      Q|q) exit;;
+      *) echo "Invalid choice!"; exit;;
+ esac
+
+echo "Now you can exit the menu (press Q for that) or pick another option"
+read -p "Enter appropriate option > " reply
+done
+echo
+
