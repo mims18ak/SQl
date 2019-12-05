@@ -1,0 +1,46 @@
+
+
+#check_out_invoice_date
+#check_out_tbl.check_out_id
+#customer_tbl.last_name
+#customer_tbl.phone
+#payment_tbl.payment_id
+#car_tbl.car_id
+
+#booking_tbl.date_out
+#car_tbl.Odometer	AS original_milage	  #This is not being updated each time the car is returned--TRIGGER OR								 
+        #this could be the original milage when the new car was entered into the system for reference when selling it.
+        #could create column in the check_out_table for outgoing milage for each rental.
+#booking_tbl.return_date
+#return_tbl.new_milage		
+#return_miles_total                     #using this case statement for now
+    #CASE when  return_tbl.new_milage > car_tbl.Odometer then (return_tbl.new_milag - car_tbl.odometer) else NULL end as miles_driven         
+        #Could find customer milage total from a newly created check_out_tbl.milage_out and return_tbl.milage
+        #1-Original milage when car was purchased by Smart Cars      - car_tbl.odometer -
+        #2-Milage recorded when rented                        CREATE - return_tbl.new_milage -                                     
+                                                                          #FUNCTION last(return_tbl.new_milage) where car_id = $car_id
+        #3-Milage recorded when car was returned                     - return_tbl.new_milage -
+
+#car_tbl.rate as 'daily rate'
+#booking_tbl.number_of_days
+#check_out_tbl.charge 	= 	charge car_tbl.rate * booking_tbl.number_of_days
+
+#INS_tbl.company
+    #CASE when insurance_type_tbl.day_rate > 0 THEN insurance_type_tbl.day_rate * booking_tbl.number_of_days ELSE INS_tbl.company
+#check_out_tbl.Sales_tax  	            
+          #Create TRIGGER for the amount of tax to be paid for base rental and insurance
+              # check_out_tbl.Sales_tax = (charge car_tbl.rate * booking_tbl.number_of_days) * .10
+#check_out_tbl.total	((charge car_tbl.rate * booking_tbl.number_of_days) + (insurance_type_tbl.day_rate * booking_tbl.number_of_days)) * 1.10 = check_out_tbl.total
+
+#Gal_gas_ purchaced
+   #CASE WHEN return_tbl.gas_refill > 0 	THEN return_tbl.gas_refill		ELSE Brought_back_full		END AS Gal_gas_ purchaced
+#price_per_gallon 
+   #CASE WHEN return_tbl.price_per_gallon > 0 	THEN return_tbl.price_per_gallon		ELSE no_charge		END AS price_per_gallon
+#return_tbl.gas_cost_total            #or create TRIGGER   
+  	#CASE WHEN return_tbl.gas_total > 0 	THEN return_tbl.gas_total		ELSE no_charge		END AS gas_cost_total
+#return_tbl.extra_charge_total        #or create TRIGGER to calculate   
+   #CASE WHEN return_tbl.extra_charge > 0 	THEN return_tbl.extra_charge()	ELSE no_charge		END AS return_extra_charge_total
+
+#payment_tbl.credit_card_number
+#payment_tbl.credit_card_exp_date	
+#invoice_total = (check_out_tbl.total) +  (return_tbl.gas_cost_total) + (return_tbl.extra_charge_total * 1.10)
