@@ -4,12 +4,29 @@ create view invoice_vew as
 select now() as invoice_date, get_return_id_last_id(), get_payment_id_last_id(), 
 	   get_car_id_last_id(), get_lastname(), get_phone(), get_date_car_rented(),
 	   miles_check_out(), get_return_date(), get_return_miles(), (get_return_miles() - miles_check_out()),
-	   daily_rate();	   
+	   daily_rate(), calculate_days_rented(), calculate_check_out_charge_days_times_rate(), get_ins_option_total();	   
 select * from invoice_vew;	
 
 
 ibuniak=> select * from extra_charge_view;
 ERROR:  permission denied for relation extra_charge_view
+
+FUNCTIONS USED SO FAR
+
+get_return_id_last_id()
+get_payment_id_last_id() 
+get_car_id_last_id()
+get_lastname()
+get_phone()
+get_date_car_rented()
+miles_check_out() 
+get_return_date() 
+get_return_miles()
+get_return_miles() - miles_check_out()
+daily_rate()
+calculate_days_rented()
+calculate_check_out_charge_days_times_rate()
+get_ins_option_total()
 
 
 'get_return_id_last_id()'
@@ -152,11 +169,47 @@ $$ LANGUAGE SQL;
 SELECT daily_rate();
 
 
-'ERROR:  column "?column?" specified more than once'
-'But it is not a problem for other tables specified more than once???'
 'booking_tbl.number_of_days'
 '13' 
-SELECT (get_return_date() - get_date_car_rented());
+CREATE OR REPLACE FUNCTION calculate_days_rented() RETURNS int 
+AS 
+$$
+     SELECT get_return_date() - get_date_car_rented();
+ $$
+LANGUAGE SQL;
+
+select calculate_days_rented();
+
+
+'check_out_tbl.charge = charge car_tbl.rate  * booking_tbl.number_of_days'
+'14'
+CREATE OR REPLACE FUNCTION calculate_check_out_charge_days_times_rate() RETURNS numeric 
+AS 
+$$
+     SELECT daily_rate() * calculate_days_rented();
+$$ LANGUAGE SQL;
+select calculate_check_out_charge_days_times_rate();
+
+
+
+'I cannot get the end as ins_cost_total to run.  It defaults to get_ins_option_total.'
+'INS_tbl.company '
+	'CASE when insurance_type_tbl.day_rate > 0 THEN insurance_type_tbl.day_rate * booking_tbl.number_of_days ELSE INS_tbl.company'
+'15'
+CREATE OR REPLACE FUNCTION get_ins_option_total() RETURNS numeric
+AS 
+$$
+    select case
+		when t.day_rate > 0 then t.day_rate * b.number_of_days 
+		else null
+	end as ins_cost_total
+	from ins_tbl i, insurance_type_tbl t, return_tbl r, booking_tbl b
+	where i.type_id = t.type_id 
+		and i.customer_id = r.customer_id 
+		and i.customer_id = b.customer_id 
+		and r.return_id = get_return_id_last_id();
+$$ LANGUAGE SQL;
+select get_ins_option_total();  
 
 
 
