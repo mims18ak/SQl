@@ -1,4 +1,7 @@
-'this works, try it out'
+'This works in psql and bash, try it out'
+'I will pick this back up around noon'
+'I decided on using Stored Procedures to get this complex view accompished.'  
+
 drop view invoice_vew;
 create view invoice_vew as
 select now() as invoice_date, get_return_id_last_id(), get_payment_id_last_id(), 
