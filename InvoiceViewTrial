@@ -1,6 +1,8 @@
 'This works in psql and bash, try it out'
-'I will pick this back up around noon'
-'I decided on using Stored Procedures to get this complex view accompished.'  
+'I decided on using Stored Procedures to get this complex view accompished.'
+'Most of this code is based off of the get_return_id_last_id() procedure'
+'It assumes there is only one terminal to check out cars so the last return_id is what I am using--simplicity at crunch time'
+'I will pick this back up around noon'  
 
 drop view invoice_vew;
 create view invoice_vew as
