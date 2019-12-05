@@ -1,0 +1,165 @@
+'this works, try it out'
+drop view invoice_vew;
+create view invoice_vew as
+select now() as invoice_date, get_return_id_last_id(), get_payment_id_last_id(), 
+	   get_car_id_last_id(), get_lastname(), get_phone(), get_date_car_rented(),
+	   miles_check_out(), get_return_date(), get_return_miles(), (get_return_miles() - miles_check_out()),
+	   daily_rate();	   
+select * from invoice_vew;	
+
+
+ibuniak=> select * from extra_charge_view;
+ERROR:  permission denied for relation extra_charge_view
+
+
+'get_return_id_last_id()'
+'2'
+CREATE OR REPLACE FUNCTION get_return_id_last_id() RETURNS bigint
+AS
+$$ 
+	select last_value from return_tbl_return_id_seq		
+$$ LANGUAGE SQL;
+SELECT get_return_id_last_id();
+
+
+
+'get_payment_id_last_id()'
+'3'
+CREATE OR REPLACE FUNCTION get_payment_id_last_id() RETURNS bigint
+AS
+$$ 
+	select last_value from payment_tbl_payment_id_seq		
+$$ LANGUAGE SQL;
+SELECT get_payment_id_last_id();
+
+
+
+'get_car_id_last_id()'
+'4'
+CREATE OR REPLACE FUNCTION get_car_id_last_id() RETURNS bigint
+AS
+$$ 
+	select last_value from car_tbl_car_id_seq
+		
+$$ LANGUAGE SQL;
+
+SELECT get_car_id_last_id();
+
+
+
+'get_last_name from customer_tbl where last_name = '
+'5'
+CREATE OR REPLACE FUNCTION get_lastname() RETURNS text
+AS
+$$ 
+	select last_name 
+	from customer_tbl c, return_tbl r
+	WHERE c.customer_id = r.customer_id 
+		and return_id = get_return_id_last_id();			
+$$ LANGUAGE SQL; 
+SELECT get_lastname();
+
+
+'get_phone from customer_tbl where last_name has get_return_id_last_id()'
+'6'
+CREATE OR REPLACE FUNCTION get_phone() RETURNS numeric
+AS
+$$ 
+	select phone 
+	from customer_tbl c, return_tbl r
+	WHERE c.customer_id = r.customer_id 
+		and return_id = get_return_id_last_id();			
+$$ LANGUAGE SQL; 
+SELECT get_phone();
+
+
+'b.date_out as date_rented get_date_car_rented()'
+'7'
+CREATE OR REPLACE FUNCTION get_date_car_rented() RETURNS date
+AS
+$$ 
+	select c.invoice_date 
+	from booking_tbl b, check_out_tbl c, return_tbl r
+	where b.booking_id = c.booking_id 
+		and b.customer_id = r.customer_id
+		and r.return_id = get_return_id_last_id();			
+$$ LANGUAGE SQL; 
+SELECT get_date_car_rented();
+
+
+
+'works for booking_id = 19	Many have data integretity issues.  Must TRIGGRER everything.'
+'car.Odometer as original_milage miles_check_out()'
+'8'
+CREATE OR REPLACE FUNCTION miles_check_out() RETURNS numeric
+AS
+$$ 
+	select odometer 
+	from booking_tbl b, car_tbl car, return_tbl r
+	WHERE b.car_id = car.car_id
+		and b.customer_id = r.customer_id
+		and r.return_id = get_return_id_last_id();			
+$$ LANGUAGE SQL; 
+SELECT miles_check_out();
+
+
+
+'b.return_date as return_date'
+'9'
+CREATE OR REPLACE FUNCTION get_return_date() RETURNS date
+AS
+$$ 
+	select b.return_date 
+	from booking_tbl b, customer_tbl c, return_tbl r
+	where b.customer_id = c.customer_id
+		and b.customer_id = r.customer_id
+		and r.return_id = get_return_id_last_id();			
+$$ LANGUAGE SQL; 
+SELECT get_return_date();
+
+
+
+'r.new_mileage as return_miles'
+'10'
+CREATE OR REPLACE FUNCTION get_return_miles() RETURNS numeric
+AS
+$$ 
+	select r.new_mileage
+	from booking_tbl b, customer_tbl c, return_tbl r
+	where b.customer_id = c.customer_id
+		and b.customer_id = r.customer_id
+		and r.return_id = get_return_id_last_id();			
+$$ LANGUAGE SQL; 
+SELECT get_return_miles();
+
+
+
+'return_miles_total as miles driven'
+'11'
+select (get_return_miles() - miles_check_out());
+
+'car_tbl.rate as 'daily rate'
+'12'
+CREATE OR REPLACE FUNCTION daily_rate() RETURNS numeric
+AS
+$$ 
+	select car.rate 
+	from booking_tbl b, car_tbl car, return_tbl r
+	WHERE b.car_id = car.car_id
+		and b.customer_id = r.customer_id
+		and r.return_id = get_return_id_last_id();			
+$$ LANGUAGE SQL; 
+SELECT daily_rate();
+
+
+'ERROR:  column "?column?" specified more than once'
+'But it is not a problem for other tables specified more than once???'
+'booking_tbl.number_of_days'
+'13' 
+SELECT (get_return_date() - get_date_car_rented());
+
+
+
+
+
+
