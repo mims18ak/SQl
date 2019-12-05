@@ -16,8 +16,9 @@ select * from invoice_vew;
 ibuniak=> select * from extra_charge_view;
 ERROR:  permission denied for relation extra_charge_view
 
-FUNCTIONS USED SO FAR
 
+FUNCTIONS USED SO FAR:
+now()
 get_return_id_last_id()
 get_payment_id_last_id() 
 get_car_id_last_id()
@@ -34,6 +35,8 @@ calculate_check_out_charge_days_times_rate()
 get_ins_option_total()
 
 
+
+
 'get_return_id_last_id()'
 '2'
 CREATE OR REPLACE FUNCTION get_return_id_last_id() RETURNS bigint
@@ -42,6 +45,7 @@ $$
 	select last_value from return_tbl_return_id_seq		
 $$ LANGUAGE SQL;
 SELECT get_return_id_last_id();
+
 
 
 
@@ -56,16 +60,16 @@ SELECT get_payment_id_last_id();
 
 
 
+
 'get_car_id_last_id()'
 '4'
 CREATE OR REPLACE FUNCTION get_car_id_last_id() RETURNS bigint
 AS
 $$ 
-	select last_value from car_tbl_car_id_seq
-		
+	select last_value from car_tbl_car_id_seq		
 $$ LANGUAGE SQL;
-
 SELECT get_car_id_last_id();
+
 
 
 
@@ -82,6 +86,8 @@ $$ LANGUAGE SQL;
 SELECT get_lastname();
 
 
+
+
 'get_phone from customer_tbl where last_name has get_return_id_last_id()'
 '6'
 CREATE OR REPLACE FUNCTION get_phone() RETURNS numeric
@@ -93,6 +99,8 @@ $$
 		and return_id = get_return_id_last_id();			
 $$ LANGUAGE SQL; 
 SELECT get_phone();
+
+
 
 
 'b.date_out as date_rented get_date_car_rented()'
@@ -107,6 +115,7 @@ $$
 		and r.return_id = get_return_id_last_id();			
 $$ LANGUAGE SQL; 
 SELECT get_date_car_rented();
+
 
 
 
@@ -126,6 +135,7 @@ SELECT miles_check_out();
 
 
 
+
 'b.return_date as return_date'
 '9'
 CREATE OR REPLACE FUNCTION get_return_date() RETURNS date
@@ -138,6 +148,7 @@ $$
 		and r.return_id = get_return_id_last_id();			
 $$ LANGUAGE SQL; 
 SELECT get_return_date();
+
 
 
 
@@ -156,9 +167,14 @@ SELECT get_return_miles();
 
 
 
+
+'I was struggling with this one and found an easy way out for now.'
 'return_miles_total as miles driven'
 '11'
 select (get_return_miles() - miles_check_out());
+
+
+
 
 'car_tbl.rate as 'daily rate'
 '12'
@@ -174,6 +190,8 @@ $$ LANGUAGE SQL;
 SELECT daily_rate();
 
 
+
+
 'booking_tbl.number_of_days'
 '13' 
 CREATE OR REPLACE FUNCTION calculate_days_rented() RETURNS int 
@@ -182,8 +200,9 @@ $$
      SELECT get_return_date() - get_date_car_rented();
  $$
 LANGUAGE SQL;
-
 select calculate_days_rented();
+
+
 
 
 'check_out_tbl.charge = charge car_tbl.rate  * booking_tbl.number_of_days'
@@ -197,9 +216,9 @@ select calculate_check_out_charge_days_times_rate();
 
 
 
-'I cannot get the end as ins_cost_total to run.  It defaults to get_ins_option_total.'
+
+'I cannot get the --CASE...END AS ins_cost_total-- to run.  It defaults to get_ins_option_total.'
 'INS_tbl.company '
-	'CASE when insurance_type_tbl.day_rate > 0 THEN insurance_type_tbl.day_rate * booking_tbl.number_of_days ELSE INS_tbl.company'
 '15'
 CREATE OR REPLACE FUNCTION get_ins_option_total() RETURNS numeric
 AS 
