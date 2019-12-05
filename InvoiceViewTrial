@@ -13,11 +13,7 @@ select now() as invoice_date, get_return_id_last_id(), get_payment_id_last_id(),
 select * from invoice_vew;	
 
 
-ibuniak=> select * from extra_charge_view;
-ERROR:  permission denied for relation extra_charge_view
-
-
-FUNCTIONS USED SO FAR:
+FUNCTIONS USED SO FAR mmims:
 now()
 get_return_id_last_id()
 get_payment_id_last_id() 
@@ -28,12 +24,15 @@ get_date_car_rented()
 miles_check_out() 
 get_return_date() 
 get_return_miles()
-get_return_miles() - miles_check_out()
+get_miles_total_from_rental()
 daily_rate()
 calculate_days_rented()
 calculate_check_out_charge_days_times_rate()
 get_ins_option_total()
 
+FUNCTIONS created by ibuniak:
+calculate_tax()		'for rate * days -- check_out_tbl'
+calculate_total()	'for total rate =   calculate_check_out_charge_days_times_rate()--  check_out_tbl'
 
 
 
@@ -168,10 +167,16 @@ SELECT get_return_miles();
 
 
 
-'I was struggling with this one and found an easy way out for now.'
 'return_miles_total as miles driven'
 '11'
-select (get_return_miles() - miles_check_out());
+CREATE OR REPLACE FUNCTION get_miles_total_from_rental() RETURNS numeric
+AS
+$$ 	  
+	select (get_return_miles() - miles_check_out());
+			
+$$ LANGUAGE SQL;
+ 
+SELECT get_miles_total_from_rental();
 
 
 
