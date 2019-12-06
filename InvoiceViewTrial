@@ -13,7 +13,7 @@ select now() as invoice_date, get_return_id_last_id(), get_payment_id_last_id(),
 select * from invoice_vew;	
 
 
-FUNCTIONS USED SO FAR mmims:
+VIEW FUNCTIONS USED SO FAR mmims:
 now()
 get_return_id_last_id()
 get_payment_id_last_id() 
@@ -30,7 +30,7 @@ calculate_days_rented()
 calculate_check_out_charge_days_times_rate()
 get_ins_option_total()
 
-FUNCTIONS created by ibuniak:
+TRIGGERS created by ibuniak:
 calculate_tax()		'for rate * days -- check_out_tbl'
 calculate_total()	'for total rate =   calculate_check_out_charge_days_times_rate()--  check_out_tbl'
 
