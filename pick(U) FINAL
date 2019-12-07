@@ -1,0 +1,77 @@
+ #!/bin/bash
+# Julia Buniak
+
+dbname="ibuniak"
+read -p "Enter you first and last name > " first last 
+echo "Hello, $first $last,"
+echo "Welcome to Smart Car Rentals!"
+echo
+echo "Pick the option what you want to do next:"
+echo 
+
+echo "displayOptions()"
+echo "----------------------------------------------------"
+echo "Check available cars                 ==========> [A]" #M
+echo "Book a car                           ==========> [B]" #J+
+echo "Check rented cars                    ==========> [C]" #J+
+echo "Check out a car                      ==========> [D]" #J+
+echo "Car return                           ==========> [E]" #M
+echo "Add employee information             ==========> [F]" #J+
+echo "List all employees                   ==========> [G]" #J+
+echo "Find an employee                     ==========> [H]" #M
+echo "Add customer information             ==========> [I]" #M
+echo "List all customers                   ==========> [J]" #M
+echo "Find a customer                      ==========> [K]" #M
+echo "Extra charge                         ==========> [L]" #J+
+echo "Invoice for last return              ==========> [O]" #M
+echo "Update  odometer                     ==========> [U]" #M 
+echo "-----------------------------------------------------"
+echo "To quit                              ==========> [Q]"
+echo
+
+
+pickU()
+{
+#updates car_tbl.odometer with return_tbl.new_mileage 
+
+read -p "Enter ****car_id**** to update it's new milage:" get_car_id
+
+psql $dbname << EOF
+
+update car_tbl
+set odometer = return_tbl.new_mileage
+from return_tbl
+where car_tbl.car_id = return_tbl.car_id
+and car_tbl.car_id = $get_car_id; 
+
+EOF
+}
+
+
+read -p "Enter appropriate option >  " reply
+while [[ $reply  != "Q" && $reply  != "q" ]]
+do
+case $reply in
+      A|a) pickA;;
+      B|b) pickB;;
+      R|r) pickR;;
+      O|o) pickO;;
+      N|n) pickN;;
+      E|e) pickE;;
+      F|f) pickF;;
+      L|l) pickL;;
+      C|c) pickC;;
+      H|h) pickH;;
+      I|i) pickI;;
+      J|j) pickJ;;
+      K|k) pickK;;
+	  O}o) pickO;;
+	  U|u) pickU;;
+      Q|q) exit;;
+      *) echo "Invalid choice!"; exit;;
+ esac
+
+echo "Now you can exit the menu (press Q for that) or pick another option"
+read -p "Enter appropriate option > " reply
+done
+echo
