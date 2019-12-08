@@ -1,0 +1,25 @@
+pickO()
+{
+
+#I tried to do my procedures but my brain is fried.  I tried to do a transaction with a Yes Y|y or No N|n option and failed.
+#Here is a basic script I threw together.  
+
+read -p "Enter return_id to print the invoice:  " return_id_input
+
+psql $dbname << EOF
+
+
+SELECT distinct r.return_id as RID, r.employee_id as EID, p.payment_id as PID, ctm.first_name as First, ctm.last_name as Last,
+           b.number_of_days as Days, car.rate, r.price_per_gallon as PerGal, r.gas_refill as Gallons, r.gas_total,
+           r.extra_charge, chk.ins_payment, chk.charge, chk.sales_tax, chk.ins_payment, chk.total,
+           (select chk.total + r.total) as invoice_total
+FROM return_tbl r,  booking_tbl b, customer_tbl ctm, car_tbl car,  payment_tbl p, check_out_tbl chk
+WHERE r.return_id = $return_id_input
+AND r.customer_id = b.customer_id
+AND r.customer_id = ctm.customer_id
+AND r.customer_id = p.customer_id
+AND r.check_out_id = chk.check_out_id;
+
+EOF
+
+}
