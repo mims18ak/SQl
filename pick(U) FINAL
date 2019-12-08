@@ -32,21 +32,26 @@ echo
 
 pickU()
 {
-#updates car_tbl.odometer with return_tbl.new_mileage 
 
-read -p "Enter ****car_id**** to update it's new milage:" get_car_id
+read -p "Press enter if you want to insert the new_mileage into the car_tbl: "
+read -p "Enter car_id to update it's new_milage in the car_tbl:   >>" get_car_id
 
 psql $dbname << EOF
 
+begin;
+select c.odometer as original_miles_updated, r.new_mileage as new_return_miles
+from car_tbl c, return_tbl r where c.car_id = r.car_id and c.car_id = $get_car_id;
 update car_tbl
-set odometer = return_tbl.new_mileage
-from return_tbl
-where car_tbl.car_id = return_tbl.car_id
-and car_tbl.car_id = $get_car_id; 
-
+	set odometer = return_tbl.new_mileage
+	from return_tbl
+	where car_tbl.car_id = return_tbl.car_id
+	and car_tbl.car_id = $get_car_id;
+select c.odometer as _miles, r.new_mileage as new_return_miles
+from car_tbl c, return_tbl r where c.car_id = r.car_id and c.car_id = $get_car_id;
+commit;
 EOF
-}
 
+}
 
 read -p "Enter appropriate option >  " reply
 while [[ $reply  != "Q" && $reply  != "q" ]]
