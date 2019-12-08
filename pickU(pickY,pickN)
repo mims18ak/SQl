@@ -1,0 +1,83 @@
+#!/bin/bash
+#MATTHEW MIMS
+dbname="ibuniak"
+#pick U|Y|N	pickUYN.sh
+#handles pickU()
+
+echo "Pick the option what you want to do next:"
+echo 
+echo "displayOptions()"
+#echo "--------------------------------------------------------------------"
+echo "Pick U to update the new_milage in car_tbl.odometer  ==========> [U]" 
+#echo "--------------------------------------------------------------------"
+#echo "Pick the option what you want to do next:"
+#echo "--------------------------------------------------------------------"
+#echo "Y for Yes I want to insert commit the data           ==========> [Y]" 
+#echo "----------------------------------------------------"
+#echo "N for No                             ==========> [N]" 
+#echo "-----------------------------------------------------"
+#echo "To return to the main menu           ==========> [R]"
+echo
+echo	
+#read -p "Press Y or N for Yes or No and then hit Enter:" get_answer
+	
+pickU()
+{
+
+#updates car_tbl.odometer with return_tbl.new_mileage by way of a Transaction
+read -p "Press enter if you want to insert the new_mileage into the car_tbl: "
+read -p "Enter car_id to update it's new_milage in the car_tbl:   >>" get_car_id
+psql $dbname << EOF
+
+begin;
+
+select c.odometer as original_miles_updated, r.new_mileage as new_return_miles
+from car_tbl c, return_tbl r where c.car_id = r.car_id and c.car_id = $get_car_id;
+update car_tbl
+	set odometer = return_tbl.new_mileage
+	from return_tbl
+	where car_tbl.car_id = return_tbl.car_id
+	and car_tbl.car_id = $get_car_id;
+select c.odometer as _miles, r.new_mileage as new_return_miles
+from car_tbl c, return_tbl r where c.car_id = r.car_id and c.car_id = $get_car_id
+commit;
+;
+
+EOF
+
+}
+
+pickY()
+{
+
+psql $dbname << EOF 
+COMMIT; 
+EOF
+
+}
+
+pickN()
+{
+
+psql $dbname << EOF 
+Rollback; 
+EOF
+
+}
+
+read -p "Enter appropriate option >  " reply
+while [[ $reply  != "Q" && $reply  != "q" ]]
+do
+case $reply in
+	  Y|y) pickY;;
+	  N|n) pickN;;
+      U|u) pickU;;
+      Q|q) exit;;
+      *) echo "Invalid choice!"; exit;;
+ esac
+
+echo "Now you can exit the menu (press Q for that) or pick another option"
+read -p "Enter appropriate option > " reply
+done
+echo
+
