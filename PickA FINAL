@@ -1,0 +1,22 @@
+pickA()    
+{
+# Matt enter date_out and return_date compare these dates
+read -p "Enter date out" date_out
+read -p "Enter return date" return_date
+
+
+psql $dbname << EOF
+
+SELECT c.car_id as available, b.date_out, b.return_date as last_day_prior_rental, $date_out AS pick_up_date, $return_date AS return_date
+FROM car_tbl c LEFT JOIN booking_tbl b 
+	ON c.car_id = b.car_id
+WHERE c.car_id NOT IN
+                (select distinct car_id
+                 from booking_tbl
+                 where date_out between $date_out::date and $return_date::date
+                        or return_date between $date_out::date and $return_date::date
+                        and date_out > $date_out ::date
+                 group by car_id); 
+
+EOF
+}
