@@ -1,65 +1,115 @@
-employee_tbl 
-employee_tbl_employee_id_seq
-extra_charge_tbl 
-extra_charge_tbl_extra_charge_id_seq 
-insurance_type_tbl 
-	                                     Table "public.insurance_type_tbl"
-   Column    |         Type          |                              Modifiers
--------------+-----------------------+----------------------------------------------------------------------
- type_id     | integer               | not null default nextval('insurance_type_tbl_type_id_seq'::regclass)
- name        | character varying(30) |
- description | character varying(65) |
- charge      | numeric(4,2)          |
-Indexes:
-    "insurance_type_tbl_pkey" PRIMARY KEY, btree (type_id)
-
-insurance_type_tbl_type_id_seq 
-
-	buniak=> \d insurance_type_tbl_type_id_seq
-	ERROR:  permission denied for relation insurance_type_tbl_type_id_seq
-
-return_extra_charge_tbl  
-return_tbl                           
-return_tbl_return_id_seq  
-
 CREATE TABLE Customer_tbl(
-Customer_id serial PRIMARY KEY,
-Last_name Varchar(25),
-Middle_name Varchar(20),
-First_name Varchar(20),
-Driver_licence Varchar(10),
-Phone int,						//ALTER TABLE Customer_tbl ALTER COLUMN Phone TYPE numeric;
-Email Varchar(30),
-Address Varchar(20),			//ALTER TABLE Customer_tbl ALTER COLUMN Address Varchar(50);
-City Varchar(20),
-State Varchar(20),
-Zip Varchar(9),
-Country Varchar(20),
-DOB date,
-Gender char(1),
-Notes Varchar(50));
-INSERT INTO Customer_tbl
+	Customer_id serial PRIMARY KEY,
+	Last_name Varchar(25),
+	Middle_name Varchar(20),
+	First_name Varchar(20),
+	Driver_licence Varchar(10),
+	Phone int,					
+	Email Varchar(30),
+	Address Varchar(20),			
+	City Varchar(20),
+	State Varchar(20),
+	Zip Varchar(9),
+	Country Varchar(20),
+	DOB date,
+	Gender char(1),
+	Notes Varchar(50));
 
-//ALREADY POPULATED
+                                         Table "public.customer_tbl"
+     Column     |         Type          |                             Modifiers
+----------------+-----------------------+--------------------------------------------------------------------
+ customer_id    | integer               | not null default nextval('customer_tbl_customer_id_seq'::regclass)
+ last_name      | character varying(25) |
+ middle_name    | character varying(20) |
+ first_name     | character varying(20) |
+ driver_licence | character varying(8)  |
+ phone          | numeric               |
+ email          | character varying(30) |
+ address        | character varying(20) |
+ city           | character varying(20) |
+ state          | character varying(2)  |
+ zip            | character varying(5)  |
+ country        | character varying(20) |
+ dob            | date                  |
+ gender         | character varying(1)  |
+ notes          | character varying(50) |
+Indexes:
+    "customer_tbl_pkey1" PRIMARY KEY, btree (customer_id)
+Check constraints:
+    "age_greater_than_21_check" CHECK (dob < (now()::date - 21))
+    "driver_licence_check" CHECK (char_length(driver_licence::text) = 8)
+    "gender_check" CHECK (char_length(gender::text) = 1)
+    "state_check" CHECK (char_length(state::text) = 2)
+    "zip_check" CHECK (char_length(zip::text) = 5)
+Referenced by:
+    TABLE "booking_tbl" CONSTRAINT "booking_tbl_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer_tbl(customer_id)
+    TABLE "return_tbl" CONSTRAINT "customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer_tbl(customer_id)
+    TABLE "ins_tbl" CONSTRAINT "ins_tbl_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer_tbl(customer_id)
+    TABLE "payment_tbl" CONSTRAINT "payment_tbl_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer_tbl(customer_id)
+
+INSERT INTO Customer_tbl
 VALUES (DEFAULT, 'Waters', 'Al', 'Muddy', 'B4432837', 6515749999, 'MuddyLife@gmail.com', '1412 Good Life Rd.', 'Gunnison', 'CO', 75436, 'USA', '12-12-1942', 'M'),		
 	   (DEFAULT, 'King', 'Barry', 'Bobby', 'G3427982', 6382349584, 'KingLife@gmail.com', '34223 Lark St.', 'Low Creek', 'CA',  96511, 'USA', '03-22-1943', 'M')
 	   (DEFAULT, 'Salazar', 'Jane', 'Elisa', 'BSR65B18', 6382515151, 'Bugsby@gmail.com', '322 Bark St.', 'Hilton', 'VA',  09222, 'USA', '03-21-1978', 'F'),
 	   (DEFAULT, 'Moke', 'Jill', 'Alicia', 'B34FEW14', 65166666666, 'FairyDust@gmail.com', '1111 Rock Rd.', 'Rocky', 'CO', 75499, 'USA', '11-12-1955', 'F'),
 	   (DEFAULT, 'Lopez', NULL, 'Janet', 'CVWE214', 5615198165, 'SeaStar@gmail.com', '23599 Pier St.', 'San Carlos', 'CA', 95688, 'USA', '12-19-1988', 'F'),
 	   (DEFAULT, 'Stoke', 'NULL', 'Faris', 'BF16165D', 6265895456, 'FishOn@gmail.com', '5561 Fish Rd.', 'San Juan', 'CA', 97585, 'USA', '09-12-1972', 'F');
-	   
+
+alter table Customer_tbl ALTER COLUMN Phone TYPE numeric;
+alter table Customer_tbl ALTER COLUMN Address Varchar(50);
+alter table customer_tbl alter column driver_licence type varchar(8);	
+alter table customer_tbl add constraint driver_licence_check check (char_length(driver_licence) = 8);	
+alter table customer_tbl alter column state type varchar(2);
+alter table customer_tbl add constraint state_check check (char_length(state) = 2);
+alter table customer_tbl alter column zip type varchar(5);
+alter table customer_tbl add constraint zip_check check (char_length(zip) = 5);
+alter table customer_tbl alter column gender type varchar(1);
+alter table customer_tbl add constraint gender_check check (char_length(gender) = 1);		
+alter table customer_tbl add constraint age_greater_than_21_check check ( dob < now()::date - 21 );
+
+INSERT INTO Customer_tbl
+VALUES (DEFAULT, 'Paul', 'Basshead', 'Les', 'B4456958', 8885756268, 'BassLife@gmail.com', '1412 Best Life Rd.', 'Bass Town', 'CA', 96584, 'USA', '06-01-1975', 'M');
+
+ customer_id | last_name | middle_name | first_name | driver_licence |   phone    |       email        |      address       |   city    | state |  zip  | country |    dob     | gender | notes
+-------------+-----------+-------------+------------+----------------+------------+--------------------+--------------------+-----------+-------+-------+---------+------------+--------+-------
+           7 | Paul      | Basshead    | Les        | B4456958       | 8885756268 | BassLife@gmail.com | 1412 Best Life Rd. | Bass Town | CA    | 96584 | USA     | 1975-06-01 | M      |
+
+
+
+
 CREATE TABLE Car_tbl(
-Car_id serial PRIMARY KEY,  
-Vin varchar(35) UNIQUE,
-Year numeric(4),
-License_plate varchar(10),
-Make varchar(20),
-Model varchar(20),
-Type varchar(20),  				//A-compact		B-misdize  		C-fullsize		D-SUV		E-minivan
-Color varchar(10),
-Status varchar(10),  			//R-Rented		A-Available
-Rate Decimal(5,2),				//DELETE FROM Car_tbl WHERE car_id = 1;
-Odometer Decimal(7,1));
+	Car_id serial PRIMARY KEY,  
+	Vin varchar(35) UNIQUE,
+	Year numeric(4),
+	License_plate varchar(10),
+	Make varchar(20),
+	Model varchar(20),
+	Type varchar(20),  				
+	Color varchar(10),
+	Status varchar(10),  			
+	Rate Decimal(5,2),				
+	Odometer Decimal(7,1));
+
+                                     Table "public.car_tbl"
+    Column     |         Type          |                        Modifiers
+---------------+-----------------------+----------------------------------------------------------
+ car_id        | integer               | not null default nextval('car_tbl_car_id_seq'::regclass)
+ vin           | character varying(35) |
+ year          | numeric(4,0)          |
+ license_plate | character varying(10) |
+ make          | character varying(20) |
+ model         | character varying(20) |
+ type          | character varying(20) |
+ color         | character varying(10) |
+ rate          | numeric(5,2)          |
+ odometer      | numeric(7,1)          |
+Indexes:
+    "car_tbl_pkey" PRIMARY KEY, btree (car_id)
+    "car_tbl_vin_key" UNIQUE CONSTRAINT, btree (vin)
+Referenced by:
+    TABLE "booking_tbl" CONSTRAINT "booking_tbl_car_id_fkey" FOREIGN KEY (car_id) REFERENCES car_tbl(car_id)
+    TABLE "return_tbl" CONSTRAINT "car_id_fkey" FOREIGN KEY (car_id) REFERENCES car_tbl(car_id)
+
 
 INSERT INTO Car_tbl(Car_id, Vin, Year, License_plate, Make, Model, Type, Color, Status, Rate, Odometer)
 VALUES (DEFAULT, '5GZCZ43D13S812715', 2018, 'CVT764K', 'Honda', 'Civic', 'Sedan', 'Silver', 'Available', 70.00, 21521),
@@ -68,13 +118,40 @@ VALUES (DEFAULT, '5GZCZ43D13S812715', 2018, 'CVT764K', 'Honda', 'Civic', 'Sedan'
 	   (DEFAULT, '43EG9879381981R88', 2019, 'DFBD454', 'Honda', 'Civic', 'suv', 'black', 'Available', 100.00, 26595),
 	   (DEFAULT, 'DFB51BE9R1B98FD1B', 2019, 'DFBDF98', 'Honda', 'Civic', 'suv', 'black', 'Available', 100.00, 9532),
 	   (DEFAULT, 'BRTBERBE8198B981B', 2018, 'DB15516', 'Honda', 'Civic', 'Coupe', 'red', 'Available', 50.00, 12598);
-	   
 
+INSERT INTO Car_tbl(Car_id, Vin, Year, License_plate, Make, Model, Type, Color, Status, Rate, Odometer)
+VALUES (DEFAULT, '7Y26DFG583S815689', 2019, 'GTT564K', 'Dodge', 'Durango', 'Suv', 'Silver', 'Available', 100.00, 1528);
+ car_id |        vin        | year | license_plate | make  |  model  | type | color  |  status   |  rate  | odometer
+--------+-------------------+------+---------------+-------+---------+------+--------+-----------+--------+----------
+      9 | 7Y26DFG583S815689 | 2019 | GTT564K       | Dodge | Durango | Suv  | Silver | Available | 100.00 |   1528.0
+      
+      
+      
+ 
 CREATE TABLE Payment_tbl(
-Payment_id serial PRIMARY KEY,
-Customer_id int REFERENCES Customer_tbl(Customer_id),
-Credit_card_number int,													//ALTER TABLE Payment_tbl ALTER COLUMN Credit_card_number Type varchar(30);
-Credit_card_exp_date date);
+	Payment_id serial PRIMARY KEY,
+	Customer_id int REFERENCES Customer_tbl(Customer_id),
+	Credit_card_number int,													
+	Credit_card_exp_date date);
+                                           Table "public.payment_tbl"
+        Column        |         Type          |                            Modifiers
+----------------------+-----------------------+------------------------------------------------------------------
+ payment_id           | integer               | not null default nextval('payment_tbl_payment_id_seq'::regclass)
+ customer_id          | integer               |
+ credit_card_number   | character varying(16) | not null
+ credit_card_exp_date | date                  |
+Indexes:
+    "payment_tbl_pkey" PRIMARY KEY, btree (payment_id)
+Check constraints:
+    "credit_card_number_length_check" CHECK (char_length(credit_card_number::text) = 16)
+Foreign-key constraints:
+    "payment_tbl_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer_tbl(customer_id)
+Referenced by:
+    TABLE "booking_tbl" CONSTRAINT "booking_tbl_payment_id_fkey" FOREIGN KEY (payment_id) REFERENCES payment_tbl(payment_id)
+
+
+INSERT INTO Payment_tbl(Payment_id, customer_id, Credit_card_number, Credit_card_exp_date)
+VALUES (DEFAULT, 7,'4326585544443333', '02-15-22');
 
 INSERT INTO Payment_tbl(Payment_id, customer_id, Credit_card_number, Credit_card_exp_date)
 VALUES (DEFAULT, 1,'5555999944441111', '12-15-24'),
@@ -83,53 +160,118 @@ VALUES (DEFAULT, 1,'5555999944441111', '12-15-24'),
 	   (DEFAULT, 4,'6165165165165165', '03-03-23'),
 	   (DEFAULT, 5,'9819851516165161', '12-26-22'),
 	   (DEFAULT, 6,'6198616168516516', '01-15-21');
+	   
+ALTER TABLE Payment_tbl ALTER COLUMN Credit_card_number Type varchar(30);
+alter table payment_tbl alter column credit_card_number set not null;
+alter table payment_tbl alter column credit_card_number type varchar(16);
+alter table payment_tbl add constraint credit_card_number_length_check check (char_length(credit_card_number) = 16);
+alter table payment_tbl alter column credit_card_exp_date set not null;
+
+
+ payment_id | customer_id | credit_card_number | credit_card_exp_date
+------------+-------------+--------------------+----------------------
+          8 |           7 | 4326585544443333   | 2022-02-15
+	  
+	  
+
 
 CREATE TABLE Booking_tbl(
-Booking_id serial PRIMARY KEY,
-Customer_id int REFERENCES Customer_tbl(Customer_id),				
-Payment_id int REFERENCES Payment_tbl(Payment_id),	 					
-Date_out date,															 	
-Return_date date,														 
-Number_of_days int,
-Car_ID int REFERENCES Car_tbl.Car_ID; 	//Alter Table Booking_tbl add column Number_of_days int;		
-												
+	Booking_id serial PRIMARY KEY,
+	Customer_id int REFERENCES Customer_tbl(Customer_id),				
+	Payment_id int REFERENCES Payment_tbl(Payment_id),	 					
+	Date_out date,															 	
+	Return_date date,														 
+	Number_of_days int,
+	Car_ID int REFERENCES Car_tbl.Car_ID); 
+
+                                 Table "public.booking_tbl"
+     Column     |  Type   |                            Modifiers
+----------------+---------+------------------------------------------------------------------
+ booking_id     | integer | not null default nextval('booking_tbl_booking_id_seq'::regclass)
+ customer_id    | integer |
+ payment_id     | integer |
+ date_out       | date    |
+ return_date    | date    |
+ number_of_days | integer |
+ car_id         | integer |
+Indexes:
+    "booking_tbl_pkey" PRIMARY KEY, btree (booking_id)
+Check constraints:
+    "return_date_less90_check" CHECK (return_date < (90 + date_out))
+Foreign-key constraints:
+    "booking_tbl_car_id_fkey" FOREIGN KEY (car_id) REFERENCES car_tbl(car_id)
+    "booking_tbl_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer_tbl(customer_id)
+    "booking_tbl_payment_id_fkey" FOREIGN KEY (payment_id) REFERENCES payment_tbl(payment_id)
+Referenced by:
+    TABLE "check_out_tbl" CONSTRAINT "booking_id_fkey" FOREIGN KEY (booking_id) REFERENCES booking_tbl(booking_id)
+Triggers:
+    trig_number_days_rented BEFORE INSERT ON booking_tbl FOR EACH ROW EXECUTE PROCEDURE number_of_days()
+
+
+INSERT INTO Booking_tbl(Booking_id, Customer_id, Payment_id, Date_out, Return_date, Number_of_days, Car_ID) 
+VALUES (DEFAULT, 7, 8, '12-09-2019', '12-10-2019', 1, 9);	
 INSERT INTO Booking_tbl(Booking_id, Customer_id, Payment_id, Date_out, Return_date, Number_of_days, Car_ID) 
 VALUES (DEFAULT, 1, 1, '12-08-2019', '12-11-2019', 3, 2) 
 	   (DEFAULT, 2, 3, '12-08-2019', '12-11-2019', 3, 4),
 	   (DEFAULT, 3, 4, '12-08-2019', '12-11-2019', 3, 5),
 	   (DEFAULT, 4, 5, '12-08-2019', '12-11-2019', 3, 6);
 
+Alter Table Booking_tbl add column Number_of_days int;	
+alter table booking_tbl add constraint return_date_less90_check check (return_date < 90 + date_out);
+alter table booking_tbl add constraint return_date__not_before_date_out_check check (date_out < return_date and date_out >= now());
 
- car_id |        vin        | year | license_plate | make  | model | type  | color  |  status   |  rate  | odometer
---------+-------------------+------+---------------+-------+-------+-------+--------+-----------+--------+----------
-      2 | 5GZCZ43D13S812715 | 2018 | CVT764K       | Honda | Civic | Sedan | Silver | Available |  70.00 |  21521.0
-      4 | BSFB51S6B51S6F5B1 | 2018 | VD51561       | Honda | Civic | Sedan | WHITE  | Available |  70.00 |  22200.0
-      5 | 3B151DF651BF561BF | 2019 | DB6DF6F       | Honda | Civic | Sedan | gold   | Available |  70.00 |  15035.0
-      6 | 43EG9879381981R88 | 2019 | DFBD454       | Honda | Civic | suv   | black  | Available | 100.00 |  26595.0
-      7 | DFB51BE9R1B98FD1B | 2019 | DFBDF98       | Honda | Civic | suv   | black  | Available | 100.00 |   9532.0
-      8 | BRTBERBE8198B981B | 2018 | DB15516       | Honda | Civic | Coupe | red    | Available |  50.00 |  12598.0
+create or replace function number_of_days()
+returns trigger as
+$$
+begin
+new.number_of_days := new.return_date - new.date_out;
+return new;
+end;
+$$
+language plpgsql;
+'drop trigger trig_number_days_rented on booking_tbl;'
+create trigger trig_number_days_rented
+before insert on booking_tbl
+for each row
+execute procedure number_of_days();
 	  
  booking_id | customer_id | payment_id |  date_out  | return_date | number_of_days | car_id
 ------------+-------------+------------+------------+-------------+----------------+--------
           3 |           1 |          1 | 2019-12-08 | 2019-12-11  |              3 |      2
-(1 row)
 
-
-CREATE TABLE Insurance_type_tbl(
-Type_id serial PRIMARY KEY,
-Name varchar(35),
-Description varchar(65),		//F = Full Waiver @ 30$ per day	Waived = Waived INS
-Charge decimal(4,2));
-
-INSERT INTO Insurance_type_tbl
-VALUES (DEFAULT, 'State Farm', 'Full Waiver', 30.00);
 
 CREATE TABLE INS_tbl(
-INS_id serial PRIMARY KEY,
-Customer_id int REFERENCES Customer_tbl(Customer_id),
-Type_id serial REFERENCES Insurance_type_tbl(Type_id),
-Company varchar(30),
-Policy_number varchar(35));
+	INS_id serial PRIMARY KEY,
+	Customer_id int REFERENCES Customer_tbl(Customer_id),
+	Type_id serial REFERENCES Insurance_type_tbl(Type_id),
+	Company varchar(30),
+	Policy_number varchar(35));
+
+                                      Table "public.ins_tbl"
+    Column     |         Type          |                         Modifiers
+---------------+-----------------------+-----------------------------------------------------------
+ ins_id        | integer               | not null default nextval('ins_tbl_ins_id_seq'::regclass)
+ customer_id   | integer               |
+ type_id       | integer               | not null default nextval('ins_tbl_type_id_seq'::regclass)
+ company       | character varying(30) |
+ policy_number | character varying(35) |
+Indexes:
+    "ins_tbl_pkey" PRIMARY KEY, btree (ins_id)
+Foreign-key constraints:
+    "ins_tbl_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customer_tbl(customer_id)
+    "ins_tbl_type_id_fkey" FOREIGN KEY (type_id) REFERENCES insurance_type_tbl(type_id)
+Referenced by:
+    TABLE "check_out_tbl" CONSTRAINT "insurance_id_fkey" FOREIGN KEY (insurance_id) REFERENCES ins_tbl(ins_id)
 
 INSERT INTO INS_tbl
 VALUES (DEFAULT, 1, DEFAULT, 'State Farm', '5G456HHJ4');
+
+ ins_id | customer_id | type_id |    company     | policy_number
+--------+-------------+---------+----------------+----------------
+      5 |           2 |       1 | Liberty Mutual | GF878696959494
+
+
+
+
+
+
